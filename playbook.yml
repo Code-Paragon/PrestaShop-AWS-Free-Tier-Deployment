@@ -1,0 +1,75 @@
+- name: Configure DB Server
+  hosts: db
+  become: yes
+  tasks:
+    - name: Install MySQL Server
+      apt:
+        name: mysql-server
+        state: present
+        update_cache: yes
+
+    - name: Configure MySQL to allow connections from web server
+      lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^bind-address'
+        line: 'bind-address = 0.0.0.0'
+
+    - name: Restart MySQL
+      service:
+        name: mysql
+        state: restarted
+
+    - name: Create prestashop database and user
+      mysql_db:
+        name: prestashop
+        state: present
+
+    - name: Create DB user
+      mysql_user:
+        name: prestashop
+        password: your_password_here
+        priv: 'prestashop.*:ALL'
+        host: '%'
+        state: present
+
+---
+
+- name: Configure Web Server
+  hosts: web
+  become: yes
+  tasks:
+    - name: Install Apache, PHP, and required extensions
+      apt:
+        name:
+          - apache2
+          - php
+          - php-mysql
+          - libapache2-mod-php
+          - unzip
+          - wget
+        state: present
+        update_cache: yes
+
+    - name: Download PrestaShop
+      get_url:
+        url: https://download.prestashop.com/download/releases/prestashop_1.7.8.10.zip
+        dest: /tmp/prestashop.zip
+
+    - name: Unpack PrestaShop
+      unarchive:
+        src: /tmp/prestashop.zip
+        dest: /var/www/html/
+        remote_src: yes
+
+    - name: Set correct permissions
+      file:
+        path: /var/www/html/
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted

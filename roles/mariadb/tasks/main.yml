@@ -1,0 +1,24 @@
+- name: Install MariaDB
+  apt:
+    name: mariadb-server
+    state: present
+    update_cache: yes
+
+- name: Start MariaDB
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+- name: Create database
+  mysql_db:
+    name: "{{ prestashop_db_name }}"
+    state: present
+
+- name: Create database user
+  mysql_user:
+    name: "{{ prestashop_db_user }}"
+    password: "{{ prestashop_db_password }}"
+    priv: "{{ prestashop_db_name }}.*:ALL"
+    host: '%'
+    state: present

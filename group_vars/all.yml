@@ -1,0 +1,4 @@
+prestashop_db_name: prestashopdb
+prestashop_db_user: prestashopuser
+prestashop_db_password: securepassword
+prestashop_db_host: <db-instance-private-ip>

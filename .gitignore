@@ -1,0 +1,9 @@
+*.retry
+*.log
+*.zip
+.vagrant/
+.ansible/
+__pycache__/
+*.pyc
+inventory
+*.pem

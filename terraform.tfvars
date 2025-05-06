@@ -1,0 +1,6 @@
+aws_region       = "af-south-1"
+instance_type    = "t2.micro"
+key_name         = "prestashop-key"
+public_key_path  = "~/.ssh/prestashop-key.pub"
+vpc_id           = "vpc-0f502afcccb22338d"
+subnet_id        = "subnet-0775300748433238e"

@@ -1,0 +1,42 @@
+- name: Install Apache, PHP and dependencies
+  apt:
+    name:
+      - apache2
+      - php
+      - php-mysql
+      - libapache2-mod-php
+      - unzip
+      - wget
+    state: present
+    update_cache: yes
+
+- name: Download PrestaShop
+  get_url:
+    url: https://download.prestashop.com/download/releases/prestashop_1.7.8.10.zip
+    dest: /tmp/prestashop.zip
+
+- name: Unzip PrestaShop
+  unarchive:
+    src: /tmp/prestashop.zip
+    dest: /var/www/html/
+    remote_src: yes
+
+- name: Set permissions
+  file:
+    path: /var/www/html
+    recurse: yes
+    owner: www-data
+    group: www-data
+
+- name: Configure Apache
+  template:
+    src: apache-config.j2
+    dest: /etc/apache2/sites-available/000-default.conf
+
+- name: Enable rewrite module
+  command: a2enmod rewrite
+
+- name: Restart Apache
+  service:
+    name: apache2
+    state: restarted
