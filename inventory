@@ -1,0 +1,5 @@
+[web]
+<web-instance-public-ip> ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/prestashop-key
+
+[db]
+<db-instance-private-ip> ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/prestashop-key
