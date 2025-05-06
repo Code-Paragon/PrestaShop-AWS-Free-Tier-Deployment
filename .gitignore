@@ -1,42 +1,38 @@
+# === Terraform ===
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
+terraform.tfvars.json
+.crash.log
+override.tf
+override.tf.json
+.terraform/
+.terraform.lock.hcl
+
+# === Ansible ===
 *.retry
 *.log
+*.out
+inventory
+*.pem
+*.key
+*.pub
 *.zip
 .vagrant/
 .ansible/
 __pycache__/
 *.pyc
-inventory
-*.pem
 
-# Ignore Terraform state files (sensitive info)
-*.tfstate
-*.tfstate.backup
-
-# Ignore crash logs and override files
-crash.log
-override.tf
-override.tf.json
-terraform.tfvars
-terraform.tfvars.json
-
-# Ignore Terraform provider plugins and directories
-.terraform/
-.terraform.lock.hcl
-
-# Ignore SSH key files (if accidentally placed)
+# === Secrets / Keys ===
 *.pem
 *.key
 *.pub
+*.env
 
-# Ignore Ansible artifacts if present in same repo
-*.retry
-*.log
-*.out
-
-# Ignore editor and OS-specific files
+# === Editor/IDE Files ===
+.idea/
+.vscode/
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
-.idea/
-.vscode/
