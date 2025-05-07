@@ -1,6 +1,8 @@
 - name: Configure DB Server
   hosts: db
   become: yes
+  vars_files:
+    - group_vars/db.yml
   tasks:
     - name: Install MySQL Server
       apt:
@@ -19,24 +21,34 @@
         name: mysql
         state: restarted
 
-    - name: Create prestashop database and user
-      mysql_db:
+    - name: Ensure PyMySQL is installed
+      apt:
+        name: python3-pymysql
+        state: present
+        update_cache: yes
+
+    - name: Create prestashop database
+      community.mysql.mysql_db:
         name: prestashop
         state: present
+        login_user: "{{ mysql_login_user }}"
+        login_password: "{{ mysql_login_password }}"
 
     - name: Create DB user
-      mysql_user:
+      community.mysql.mysql_user:
         name: prestashop
-        password: your_password_here
+        password: "{{ prestashop_db_password }}"
         priv: 'prestashop.*:ALL'
         host: '%'
         state: present
-
----
+        login_user: "{{ mysql_login_user }}"
+        login_password: "{{ mysql_login_password }}"
 
 - name: Configure Web Server
   hosts: web
   become: yes
+  vars_files:
+    - group_vars/db.yml
   tasks:
     - name: Install Apache, PHP, and required extensions
       apt:
@@ -47,12 +59,25 @@
           - libapache2-mod-php
           - unzip
           - wget
+          - curl
+          - git
+          - php-cli
+          - php-mbstring
+          - php-xml
+          - php-intl
+          - php-curl
+          - php-zip
+          - php-gd
         state: present
         update_cache: yes
 
+    - name: Enable Apache mod_rewrite
+      command: a2enmod rewrite
+      notify: Restart Apache
+
     - name: Download PrestaShop
       get_url:
-        url: https://download.prestashop.com/download/releases/prestashop_1.7.8.10.zip
+        url: https://github.com/PrestaShop/PrestaShop/archive/refs/tags/8.2.1.zip
         dest: /tmp/prestashop.zip
 
     - name: Unpack PrestaShop
@@ -61,6 +86,31 @@
         dest: /var/www/html/
         remote_src: yes
 
+    - name: Move PrestaShop contents to /var/www/html
+      shell: |
+        mv /var/www/html/PrestaShop-8.2.1/* /var/www/html/
+        mv /var/www/html/PrestaShop-8.2.1/.* /var/www/html/ 2>/dev/null || true
+        rm -rf /var/www/html/PrestaShop-8.2.1
+
+    - name: Remove default index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    - name: Download and install Composer
+      shell: |
+        curl -sS https://getcomposer.org/installer | php
+        mv composer.phar /usr/local/bin/composer
+      args:
+        creates: /usr/local/bin/composer
+
+    - name: Run Composer install in /var/www/html
+      command: composer install
+      args:
+        chdir: /var/www/html
+      environment:
+        COMPOSER_ALLOW_SUPERUSER: 1
+
     - name: Set correct permissions
       file:
         path: /var/www/html/
@@ -68,7 +118,26 @@
         recurse: yes
         owner: www-data
         group: www-data
+        mode: '0755'
 
+    - name: Ensure 'install' folder exists
+      copy:
+        src: /var/www/html/PrestaShop-8.2.1/install
+        dest: /var/www/html/install
+        remote_src: yes
+      when: not (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_version'] is version('20.04', '>='))
+
+    - name: Wait for user to finish PrestaShop setup (5 minutes)
+      pause:
+        minutes: 5
+        prompt: "Pause to allow browser setup of PrestaShop. You can Ctrl+C if done early."
+
+    - name: Remove 'install' folder after setup
+      file:
+        path: /var/www/html/install
+        state: absent
+
+  handlers:
     - name: Restart Apache
       service:
         name: apache2

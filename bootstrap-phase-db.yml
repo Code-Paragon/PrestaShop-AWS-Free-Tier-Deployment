@@ -1,0 +1,41 @@
+---
+- name: Step 1 - Copy SSH key to Web Server for DB access
+  hosts: web
+  become: no
+  tasks:
+    - name: Ensure .ssh directory exists
+      file:
+        path: /home/ubuntu/.ssh
+        state: directory
+        mode: '0700'
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Copy private key for DB access to web server
+      copy:
+        src: ~/.ssh/prestashop-key
+        dest: /home/ubuntu/.ssh/prestashop-key
+        mode: '0600'
+        owner: ubuntu
+        group: ubuntu
+
+- name: Step 2 - Bootstrap MySQL DB Server and Fetch Credentials
+  hosts: db
+  become: yes
+  tasks:
+    - name: Install MySQL Server
+      apt:
+        name: mysql-server
+        state: present
+        update_cache: yes
+
+    - name: Restart MySQL
+      service:
+        name: mysql
+        state: restarted
+
+    - name: Fetch /etc/mysql/debian.cnf to control node
+      fetch:
+        src: /etc/mysql/debian.cnf
+        dest: ./fetched_debian_cnf/
+        flat: yes
