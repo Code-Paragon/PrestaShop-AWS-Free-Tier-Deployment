@@ -19,14 +19,21 @@ This branch contains Ansible playbooks to configure the provisioned AWS instance
 
 ```text
 ansible/
-├── inventory                 # Hosts file with DB and Web server IPs
-├── playbook.yml             # Main configuration playbook
-├── bootstrap-phase-db.yml   # Bootstraps and prepares the DB server
+├── inventory
+├── playbook.yml
 ├── group_vars/
-│   └── db.yml               # Encrypted credentials and DB info
-├── roles/ (optional)
-│   ├── prestashop/          # Future modularization of app setup
-│   └── mariadb/             # Future modularization of DB setup
+│   └── all.yml
+├── roles/
+│   ├── prestashop/
+│   │   ├── tasks/
+│   │   │   └── main.yml
+│   │   └── templates/
+│   │       └── apache-config.j2
+│   └── mariadb/
+│       ├── tasks/
+│       │   └── main.yml
+│       └── templates/
+│           └── mariadb.cnf.j2
 └── .gitignore
 
 ---
