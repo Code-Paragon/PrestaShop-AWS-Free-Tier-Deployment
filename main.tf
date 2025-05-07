@@ -65,7 +65,7 @@ resource "aws_security_group" "db_sg" {
 
 # Web Server
 resource "aws_instance" "web_server" {
-  ami           = "ami-041d287dbeca860a8" # Ubuntu 22.04 LTS in af-south-1
+  ami           = "ami-04ba3e5b53ead2ff1" # Ubuntu 22.04 LTS in af-south-1
   instance_type = var.instance_type
   key_name      = var.key_name
   subnet_id     = var.subnet_id
@@ -79,7 +79,7 @@ resource "aws_instance" "web_server" {
 
 # Database Server
 resource "aws_instance" "db_server" {
-  ami           = "ami-041d287dbeca860a8"
+  ami           = "ami-04ba3e5b53ead2ff1"
   instance_type = var.instance_type
   key_name      = var.key_name
   subnet_id     = var.subnet_id
