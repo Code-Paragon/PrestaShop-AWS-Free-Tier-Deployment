@@ -22,6 +22,8 @@ inventory
 .ansible/
 __pycache__/
 *.pyc
+fetched_debian_cnf/
+
 
 # === Secrets / Keys ===
 *.pem
