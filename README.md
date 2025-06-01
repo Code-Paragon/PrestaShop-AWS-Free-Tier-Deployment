@@ -1,10 +1,10 @@
-# 📦 PrestaShop AWS Free Tier Deployment
+#  PrestaShop AWS Free Tier Deployment
 
 A complete Infrastructure-as-Code (IaC) project to deploy and configure a **PrestaShop** e-commerce platform using **Terraform** and **Ansible** on AWS Free Tier.
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 | Branch      | Purpose                                         |
 |-------------|-------------------------------------------------|
@@ -14,14 +14,14 @@ A complete Infrastructure-as-Code (IaC) project to deploy and configure a **Pres
 
 ---
 
-## 🌐 Live Demo
+##  Live Demo
 
 - **Access:** [http://<your-public-ip>](http://<your-public-ip>)
-- 🔁 Replace `<your-public-ip>` with the actual public IP of your EC2 instance.
+-  Replace `<your-public-ip>` with the actual public IP of your EC2 instance.
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Terraform** – Infrastructure provisioning on AWS
 - **Ansible** – Configuration management and PrestaShop installation
@@ -29,7 +29,7 @@ A complete Infrastructure-as-Code (IaC) project to deploy and configure a **Pres
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 1. **Clone the repo and switch to the `terraform` branch**
     ```bash
