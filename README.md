@@ -1,23 +1,44 @@
-# PrestaShop AWS Deployment Project
+# 📦 PrestaShop AWS Free Tier Deployment
 
-This repository contains a full infrastructure-as-code implementation to deploy and configure a **PrestaShop** instance using **Terraform** and **Ansible** on the **AWS Free Tier**.
-
-## Project Structure
-
-- **Terraform branch**: Provisions the cloud infrastructure using Terraform.
-- **Ansible branch**: Configures the provisioned servers to install and deploy PrestaShop.
-- **Main branch**: Contains project documentation and links to detailed implementation in other branches.
-
-## Live Demo
-
-🟢 **Live PrestaShop Instance**: [http://<your-public-ip>](http://<your-public-ip>)  
-⚠️ Replace `<your-public-ip>` with your actual public IP from AWS
-
-## GitHub Branches
-
-- [terraform](../../tree/terraform)
-- [ansible](../../tree/ansible)
+A complete Infrastructure-as-Code (IaC) project to deploy and configure a **PrestaShop** e-commerce platform using **Terraform** and **Ansible** on AWS Free Tier.
 
 ---
 
-> Built for academic demonstration and Free Tier optimization.
+## 📁 Project Structure
+
+| Branch      | Purpose                                         |
+|-------------|-------------------------------------------------|
+| `main`      | Documentation & overview                        |
+| `terraform` | AWS infrastructure provisioning (EC2, SGs)      |
+| `ansible`   | Software installation & app configuration       |
+
+---
+
+## 🌐 Live Demo
+
+- **Access:** [http://<your-public-ip>](http://<your-public-ip>)
+- 🔁 Replace `<your-public-ip>` with the actual public IP of your EC2 instance.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Terraform** – Infrastructure provisioning on AWS
+- **Ansible** – Configuration management and PrestaShop installation
+- **Amazon EC2 (Free Tier)** – Hosting environment
+
+---
+
+## 🚀 Getting Started
+
+1. **Clone the repo and switch to the `terraform` branch**
+    ```bash
+    git checkout terraform
+    terraform init && terraform apply
+    ```
+
+2. **After provisioning, switch to the `ansible` branch and run configuration:**
+    ```bash
+    git checkout ansible
+    ansible-playbook playbook.yml -i hosts
+    ```
