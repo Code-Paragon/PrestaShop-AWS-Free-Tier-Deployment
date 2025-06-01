@@ -4,7 +4,6 @@
 
 ### 🔹 `ansible` Branch – Server Configuration
 
-```markdown
 # Ansible Configuration - PrestaShop Deployment
 
 This branch contains Ansible playbooks to configure the provisioned AWS instances and deploy PrestaShop.
