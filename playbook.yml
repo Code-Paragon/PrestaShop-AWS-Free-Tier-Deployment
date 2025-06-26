@@ -3,6 +3,7 @@
   become: yes
   vars_files:
     - group_vars/db.yml
+
   tasks:
     - name: Install MySQL Server
       apt:
@@ -27,6 +28,15 @@
         state: present
         update_cache: yes
 
+    - name: Create MySQL admin user with password auth
+      community.mysql.mysql_user:
+        name: "{{ mysql_login_user }}"
+        password: "{{ mysql_login_password }}"
+        priv: "*.*:ALL,GRANT"
+        host: "localhost"
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
     - name: Create prestashop database
       community.mysql.mysql_db:
         name: prestashop
@@ -34,7 +44,7 @@
         login_user: "{{ mysql_login_user }}"
         login_password: "{{ mysql_login_password }}"
 
-    - name: Create DB user
+    - name: Create DB user for PrestaShop
       community.mysql.mysql_user:
         name: prestashop
         password: "{{ prestashop_db_password }}"
@@ -44,11 +54,16 @@
         login_user: "{{ mysql_login_user }}"
         login_password: "{{ mysql_login_password }}"
 
-- name: Configure Web Server
+# ----------------------------------------------------------
+# Web Server Setup (Assuming you already have this working)
+# ----------------------------------------------------------
+
+- name: Configure Web Server (PrestaShop 8.1.5 Clean Install)
   hosts: web
   become: yes
   vars_files:
     - group_vars/db.yml
+
   tasks:
     - name: Install Apache, PHP, and required extensions
       apt:
@@ -68,6 +83,7 @@
           - php-curl
           - php-zip
           - php-gd
+          - libicu-dev
         state: present
         update_cache: yes
 
@@ -75,9 +91,22 @@
       command: a2enmod rewrite
       notify: Restart Apache
 
-    - name: Download PrestaShop
+    - name: Remove old site content completely
+      file:
+        path: /var/www/html/
+        state: absent
+
+    - name: Recreate /var/www/html directory
+      file:
+        path: /var/www/html/
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Download PrestaShop ready-to-install zip
       get_url:
-        url: https://github.com/PrestaShop/PrestaShop/archive/refs/tags/8.2.1.zip
+        url: https://github.com/PrestaShop/PrestaShop/releases/download/8.1.5/prestashop_8.1.5.zip
         dest: /tmp/prestashop.zip
 
     - name: Unpack PrestaShop
@@ -86,30 +115,13 @@
         dest: /var/www/html/
         remote_src: yes
 
-    - name: Move PrestaShop contents to /var/www/html
+    - name: Move extracted PrestaShop files to /var/www/html
       shell: |
-        mv /var/www/html/PrestaShop-8.2.1/* /var/www/html/
-        mv /var/www/html/PrestaShop-8.2.1/.* /var/www/html/ 2>/dev/null || true
-        rm -rf /var/www/html/PrestaShop-8.2.1
-
-    - name: Remove default index.html
-      file:
-        path: /var/www/html/index.html
-        state: absent
-
-    - name: Download and install Composer
-      shell: |
-        curl -sS https://getcomposer.org/installer | php
-        mv composer.phar /usr/local/bin/composer
+        shopt -s dotglob
+        mv /var/www/html/prestashop/* /var/www/html/
+        rm -rf /var/www/html/prestashop
       args:
-        creates: /usr/local/bin/composer
-
-    - name: Run Composer install in /var/www/html
-      command: composer install
-      args:
-        chdir: /var/www/html
-      environment:
-        COMPOSER_ALLOW_SUPERUSER: 1
+        executable: /bin/bash
 
     - name: Set correct permissions
       file:
@@ -120,22 +132,10 @@
         group: www-data
         mode: '0755'
 
-    - name: Ensure 'install' folder exists
-      copy:
-        src: /var/www/html/PrestaShop-8.2.1/install
-        dest: /var/www/html/install
-        remote_src: yes
-      when: not (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_version'] is version('20.04', '>='))
-
     - name: Wait for user to finish PrestaShop setup (5 minutes)
       pause:
         minutes: 5
-        prompt: "Pause to allow browser setup of PrestaShop. You can Ctrl+C if done early."
-
-    - name: Remove 'install' folder after setup
-      file:
-        path: /var/www/html/install
-        state: absent
+        prompt: "Pause to allow browser setup of PrestaShop 8.1.5. You can Ctrl+C if done early."
 
   handlers:
     - name: Restart Apache
